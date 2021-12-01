@@ -16,8 +16,9 @@ library(kableExtra)
 
 ### Introduction
 
-This report provides analyzes survey data gathered by Chelsea Batavia and Andrews Forest LTER to explore "Influences on charitable giving for conservation." We will explore the following question: Are political affiliation and identifying as an environmentalist independent? This report uses a chi-square test to determine if there is a significant association between political affiliation and identifying as an environmentalist.
+This report analyzes survey data gathered by Chelsea Batavia and Andrews Forest LTER to explore "Influences on charitable giving for conservation." We will explore the following question: Are political affiliation and identifying as an environmentalist independent? This report uses a chi-square test to determine if there is a significant association between political affiliation and identifying as an environmentalist.
 
+### Chi-square Test
 ```{r}
 # Read in data:
 conservation_survey_results <- read_csv(here("data", "conservation_survey.csv"))

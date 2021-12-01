@@ -1,0 +1,121 @@
+---
+title: "Lizard Lengths for Female CNTE and CNUN Species"
+author: "Katie Munster"
+date: "11/30/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+library(tidyverse)
+library(here)
+library(janitor)
+library(ggbeeswarm)
+library(kableExtra)
+library(effsize)
+```
+
+### Introduction
+
+This report analyzes Jornada Basin LTER lizards data. This report compares the lengths of female CNTE (Cnemidophorus tessalatus, the Colorado Checkered lizard) and CNUN (Cnemidophorus uniparens, the Desert Grassland lizard) species at the Jornada Basin. Exploratory data visualizations, summary statistics, two-sample t-test, and Cohen's d effect size are used to analyze data on lizard lengths.
+
+### Results
+
+```{r}
+# Read in data:
+lizards <- read_csv(here("data", "lizards.csv"))
+```
+
+```{r}
+lizards_simplified <- lizards %>% 
+  select(spp, sex, total_length) %>%  # Only keep spp, sex, and total_length columns
+  filter(spp %in% c("CNUN", "CNTE")) %>% # Filter to only include observations of species CNUN and CNTE
+  filter(sex == "F") # Filter to only include female observations
+```
+
+```{r}
+# Visualization comparing total lengths of female lizards for the CNUN and CNTE species
+ggplot(data = lizards_simplified, aes(x = spp, y = total_length)) +
+  geom_beeswarm(aes(color = spp)) +
+  geom_boxplot(fill = NA, width = 0.2, outlier.color = NA) +
+  stat_summary(fun=mean, 
+               geom="point", 
+               shape=20, 
+               size=4, 
+               color="black", 
+               fill="black") +
+  theme_minimal() +
+  labs(x = "Species",
+       y = "Total Lizard Length (mm)",
+       title = "Total Lengths of Female CNTE and CNUN Lizards") +
+  theme(plot.caption = element_text(hjust = 0.5),
+        plot.background = element_rect(fill = "azure"),
+        panel.background = element_rect(fill = "ivory"),
+        panel.grid.major = element_line(color = "gray58"))
+```
+
+**Figure 1.** The distributions of female lizard lengths (mm) for CNTE (Cnemidophorus tessalatus, the Colorado Checkered lizard) and CNUN (Cnemidophorus uniparens, the Desert Grassland lizard) species at the Jornada Basin. Points indicate individual observations for total length (mm) of a female lizard. Box endpoints indicate the 25th and 75th percentile values; the black line and black point within the box indicate the median and mean value for each species, respectively. The CNTE female lizards tend to be longer than the CNUN female lizards on average.
+
+**Table 1.** The following summary table contains the mean and standard deviation for total length (mm) and sample size for female CNTE lizards and female CNUN lizards.
+
+```{r}
+# Create a summary table containing the mean, standard deviation, and sample size for each group
+lizards_comparison <- lizards_simplified %>%
+  group_by(spp) %>% 
+  summarize(mean_length_mm = round(mean(total_length, na.rm = TRUE), 1),
+            sd_length_mm = round(sd(total_length, na.rm = TRUE), 1),
+            sample_size = n())
+
+lizards_comparison %>% 
+  kable(col.names = c("Species",
+                      "Mean Female Lizard Length (mm)",
+                      "Standard Deviation Female Lizard Length (mm)",
+                      "Sample Size")) %>% 
+  kable_styling()
+```
+
+```{r, include = FALSE}
+# Exploratory histogram of total length by species
+ggplot(data = lizards_simplified, aes(x = total_length)) +
+  geom_histogram(bins = 12) +
+  facet_wrap(~ spp)
+# Data seems normally distributed
+```
+
+```{r, include = FALSE}
+# Exploratory qq-plot of total length by species
+ggplot(data = lizards_simplified, aes(sample = total_length)) +
+  geom_qq() +
+  facet_wrap(~ spp) +
+  geom_qq_line()
+# Close to linear so seems normally distributed
+```
+
+```{r, include = FALSE}
+# Run an unpaired two-sample t-test
+female_lizard_length_cnte <- lizards_simplified %>% 
+  filter(spp == "CNTE") %>% 
+  pull(total_length)
+
+female_lizard_length_cnun <- lizards_simplified %>% 
+  filter(spp == "CNUN") %>% 
+  drop_na(total_length) %>% # Remove NA values
+  pull(total_length)
+
+ttest_lizard_length <- t.test(female_lizard_length_cnte, female_lizard_length_cnun)
+
+ttest_lizard_length
+# This p-value means there is almost a 0% chance of finding sample means that are at least this different if drawn by random chance from populations with the same mean total length.
+```
+
+```{r, include = FALSE}
+lizard_length_cohen <- cohen.d(female_lizard_length_cnte, female_lizard_length_cnun)
+# Large effect size
+lizard_length_cohen
+```
+
+Mean total length for female CNTE lizards (`r lizards_comparison$mean_length_mm[1]` mm) is greater than that for female CNUN lizards (`r lizards_comparison$mean_length_mm[2]` mm); the actual difference in mean lengths between female CNTE lizards and female CNUN lizards is `r lizards_comparison$mean_length_mm[1] - lizards_comparison$mean_length_mm[2]` mm. The effect size is large (Cohen's *d* = `r round(lizard_length_cohen$estimate, 2)`). The t-test gives a p-value of `r round(ttest_lizard_length$p.value, 1)` which means there is a `r round(ttest_lizard_length$p.value, 1)*100`% chance of finding sample means that are at least this different if drawn by random chance from populations with the same mean length.
+
+### Data Citation
+
+Lightfoot, D. 2017. Lizard pitfall trap data (LTER-II, LTER-III) ver 36. Environmental Data Initiative. https://doi.org/10.6073/pasta/ff37b4cace16a9943575f3fd7067064e.
