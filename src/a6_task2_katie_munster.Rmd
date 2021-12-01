@@ -1,0 +1,84 @@
+---
+title: "Political and Environmentalist Self-identification"
+author: "Katie Munster"
+date: "11/30/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+library(tidyverse)
+library(here)
+library(janitor)
+library(broom)
+library(kableExtra)
+```
+
+### Introduction
+
+This report provides analyzes survey data gathered by Chelsea Batavia and Andrews Forest LTER to explore "Influences on charitable giving for conservation." We will explore the following question: Are political affiliation and identifying as an environmentalist independent? This report uses a chi-square test to determine if there is a significant association between political affiliation and identifying as an environmentalist.
+
+```{r}
+# Read in data:
+conservation_survey_results <- read_csv(here("data", "conservation_survey.csv"))
+```
+
+```{r}
+conservation_simplified <- conservation_survey_results %>% 
+  clean_names() %>% 
+  select(env_id, pol_or) %>% # Only keep ENV_ID and POL_OR columns
+  mutate(political_affiliation = case_when( # Add a new column for political affiliations
+    pol_or == 1 ~ "Conservative",
+    pol_or == 2 ~ "Conservative",
+    pol_or == 3 ~ "Conservative",
+    pol_or == 5 ~ "Liberal",
+    pol_or == 6 ~ "Liberal",
+    pol_or == 7 ~ "Liberal"
+  )) %>% 
+  filter(political_affiliation %in% c("Conservative", "Liberal")) # Exclude other political affiliations
+```
+
+```{r}
+# Counts of liberal and conservative survey respondents who responded "Yes", "No", and "Unsure" to the statement "I consider myself an environmentalist."
+environmentalist_counts <- conservation_simplified %>% 
+  janitor::tabyl(political_affiliation, env_id)
+
+# Table of both counts and proportions
+environmentalist_proportions <- environmentalist_counts %>% 
+  adorn_percentages() %>% 
+  janitor::adorn_pct_formatting(digits = 2) %>% 
+  adorn_ns() 
+
+environmentalist_proportions_kable <- environmentalist_proportions %>% 
+  kable(col.names = c("Political affiliation",
+                      "Yes",
+                      "No",
+                      "Unsure"),
+        caption = "Counts and proportions of conservative and liberal survey respondants who responded to the statement 'I consider myself an environmentalist.'") %>% 
+  kable_styling()
+
+environmentalist_proportions_kable # Print the table
+```
+
+```{r}
+# Make contingency table. Convert entries in a column to stored rownames
+environmentalist_ct <- environmentalist_counts %>% 
+  column_to_rownames(var = "political_affiliation")
+```
+
+```{r}
+# Perform a chi-square test for independence
+environmentalist_x2 <- chisq.test(environmentalist_ct)
+```
+
+```{r}
+environmentalist_tidy <- tidy(environmentalist_x2)
+```
+
+There is a significant association between political association (conservative or liberal) and identifying as an environmentalist ($\chi$^2^(`r environmentalist_tidy$parameter`) = `r round(environmentalist_tidy$statistic,2)`, *p* = `r round(environmentalist_tidy$p.value, 3)`). The majority of conservatives (`r environmentalist_proportions$"2"[1]`) did not consider themselves an environmentalist, and the majority of liberals (`r environmentalist_proportions$"1"[2]`) did identify as an environmentalist.
+
+
+### Data Citation
+
+Andrews Forest LTER Site and C. Batavia. 2019. Influences on charitable giving for conservation: Online survey data of 1,331 respondents across the US, August 2017 ver 3. Environmental Data Initiative. https://doi.org/10.6073/pasta/926e6270e324a1322a900da14d38b96c.
+
