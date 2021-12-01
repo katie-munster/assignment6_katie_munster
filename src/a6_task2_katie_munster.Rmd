@@ -79,7 +79,27 @@ environmentalist_tidy <- tidy(environmentalist_x2)
 There is a significant association between political association (conservative or liberal) and identifying as an environmentalist ($\chi$^2^(`r environmentalist_tidy$parameter`) = `r round(environmentalist_tidy$statistic,2)`, *p* = `r round(environmentalist_tidy$p.value, 3)`). The majority of conservatives (`r environmentalist_proportions$"2"[1]`) did not consider themselves an environmentalist, and the majority of liberals (`r environmentalist_proportions$"1"[2]`) did identify as an environmentalist.
 
 
-### Data Citation
+### Data Citations
 
-Andrews Forest LTER Site and C. Batavia. 2019. Influences on charitable giving for conservation: Online survey data of 1,331 respondents across the US, August 2017 ver 3. Environmental Data Initiative. https://doi.org/10.6073/pasta/926e6270e324a1322a900da14d38b96c.
+- Andrews Forest LTER Site and C. Batavia. 2019. Influences on charitable giving for conservation: Online survey data of 1,331 respondents across the US, August 2017 ver 3. Environmental Data Initiative. https://doi.org/10.6073/pasta/926e6270e324a1322a900da14d38b96c.
 
+- David Robinson, Alex Hayes and Simon Couch (2021). broom: Convert Statistical Objects into Tidy Tibbles. R
+package version 0.7.9. https://CRAN.R-project.org/package=broom
+
+- Hao Zhu (2021). kableExtra: Construct Complex Table with 'kable' and Pipe Syntax. R package version 1.3.4.
+https://CRAN.R-project.org/package=kableExtra
+
+- Kirill Müller (2020). here: A Simpler Way to Find Your Files. R package version 1.0.1.
+https://CRAN.R-project.org/package=here
+
+- R Core Team (2021). R: A language and environment for statistical computing. R Foundation for Statistical
+Computing, Vienna, Austria. URL https://www.R-project.org/.
+
+- RStudio Team (2021). RStudio: Integrated Development Environment for R. RStudio, PBC, Boston, MA URL
+http://www.rstudio.com/.
+
+- Sam Firke (2021). janitor: Simple Tools for Examining and Cleaning Dirty Data. R
+  package version 2.1.0. https://CRAN.R-project.org/package=janitor
+
+- Wickham et al., (2019). Welcome to the tidyverse. Journal of Open Source Software, 4(43), 1686,
+https://doi.org/10.21105/joss.01686

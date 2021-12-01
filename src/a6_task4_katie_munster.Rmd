@@ -1,0 +1,64 @@
+---
+title: "Mono Lake Levels (1850 - 2017)"
+author: "Katie Munster"
+date: "12/1/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+library(tidyverse)
+library(here)
+library(janitor)
+```
+
+```{r}
+# Read in data:
+mono_lake <- read_csv(here("data", "mono_lake_annual_levels.csv"), skip = 5) # Skip first rows to simplify
+```
+
+```{r}
+mono_lake_clean <- mono_lake %>% 
+  clean_names()
+```
+
+```{r}
+# Create line chart to visualize the change in Mono Lake level from 1850 to 2017:
+ggplot(data = mono_lake_clean, aes(x = year, y=lake_level_feet_above_sea_level)) +
+  geom_line(color = "darkblue") + 
+  geom_hline(yintercept = 6377, color = "red") +
+  theme_light() +
+  annotate(geom = "text", x = 1941, y = 6417, hjust = -.05, vjust = -2, 
+             label = "1941: Divert water from Mono Lake") +
+  annotate(geom = "point", x = 1941, y = 6417, size = 10, shape = 21, fill = "transparent") +
+  annotate(geom = "text", x = 1994, y = 6374.60, hjust = .7, vjust = 3,
+             label = "1994: State Water Board issued Decision 1631") +
+  annotate(geom = "point", x = 1994, y = 6374.60, size = 10, shape = 21, fill = "transparent") +
+  coord_cartesian(ylim = c(6350, 6450)) + # Zoomed in on coordinates to more clearly see change in lake level over time
+  labs(x = "Year",
+       y = "Lake Level (feet above sea level)",
+       title = "Change in lake level at Mono Lake (1850 - 2017)",) +
+  theme(plot.caption = element_text(hjust = .5),
+        plot.background = element_rect(fill = "lightblue"),
+        panel.background = element_rect(fill = "gray96"),
+        panel.grid.major = element_line(color = "gray58"))
+```
+
+**Figure 1.** The change in lake level (feet above sea level) at Mono Lake from 1850 to 2017. In recent years, there is a downward trend in lake level. In 1941, the Los Angeles Department of Water & Power (DWP) began diverting water from Mono Lake. This resulted in a severe decline in Mono Lake water level. In 1994, the State Water Board passed Decision 1631, which set a lake level of 6,392 feet and protected Mono Lake from further degradation. Restoration orders were issued in 1998, which has helped to further restore lake level. It is especially critical to maintain lake level above 6,377 feet above sea level because at this lake level, land bridges emerge between the mainland and islands, which allows predators (e.g. coyotes) to access major bird nesting sites. Mono Lake has previously dropped below this threshold, but it is important to work towards maintaining a lake level above 6,377 feet above sea level to protect the bird populations at Mono Lake.
+
+### Package Citations
+
+- Kirill Müller (2020). here: A Simpler Way to Find Your Files. R package version 1.0.1.
+https://CRAN.R-project.org/package=here
+
+- R Core Team (2021). R: A language and environment for statistical computing. R Foundation for Statistical
+Computing, Vienna, Austria. URL https://www.R-project.org/.
+
+- RStudio Team (2021). RStudio: Integrated Development Environment for R. RStudio, PBC, Boston, MA URL
+http://www.rstudio.com/.
+
+- Sam Firke (2021). janitor: Simple Tools for Examining and Cleaning Dirty Data. R
+  package version 2.1.0. https://CRAN.R-project.org/package=janitor
+
+- Wickham et al., (2019). Welcome to the tidyverse. Journal of Open Source Software, 4(43), 1686,
+https://doi.org/10.21105/joss.01686
